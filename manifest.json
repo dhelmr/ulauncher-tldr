@@ -1,0 +1,22 @@
+{
+    "required_api_version": "^2.0.0",
+    "name": "Browse TLDR pages and copy commands to the clipboard.",
+    "description": "tldr.sh extension",
+    "developer_name": "dhelmr",
+    "icon": "icons/ext_icon.svg",
+    "preferences": [
+        {
+            "id": "keyword",
+            "type": "keyword",
+            "name": "tldr",
+            "default_value": "tldr"
+        },
+        {
+            "id": "max_search_result_size",
+            "type": "select",
+            "name": "Maximum number of search results",
+            "default_value": "10",
+            "options": ["3","4","5","6","7","8","9","10","11","12"]
+        }
+    ]
+}
