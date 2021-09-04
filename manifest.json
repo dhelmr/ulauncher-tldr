@@ -1,7 +1,7 @@
 {
     "required_api_version": "^2.0.0",
-    "name": "Browse TLDR pages and copy commands to the clipboard.",
-    "description": "tldr.sh extension",
+    "name": "tldr.sh",
+    "description": "Browse tldr.sh pages and copy commands to the clipboard.",
     "developer_name": "dhelmr",
     "icon": "icons/ext_icon.svg",
     "preferences": [
