@@ -85,7 +85,7 @@ class KeywordQueryListener(EventListener):
                                 description=pad_string(parsed.description, width=90),
                                 icon="icons/information.svg", highlightable=False)
         ]+[
-            ExtensionResultItem(name=command.command.removesuffix(".").removesuffix(":"), description=command.description,
+            ExtensionResultItem(name=command.command, description=command.description.removesuffix(".").removesuffix(":"),
                                 icon="icons/command.svg", on_enter=CopyToClipboardAction(command.command))
             for command in parsed.commands
         ]+[
