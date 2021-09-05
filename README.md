@@ -3,7 +3,14 @@
 This is a ulauncher extension for [tldr.sh pages](https://tldr.sh/). It offers a search for tldr pages, shows the pages
 in a list-style and can copy the displayed commands to the clipboard.
 
-Installation instructions can be found at https://ext.ulauncher.io/about.
+## Requirements 
+
+* git
+* python (tested with 3.9, but older versions >= 3.6 should work as well)
+
+## Installation
+
+Installation instructions can be found at https://ext.ulauncher.io/about. 
 
 ![tldr ls](https://github.com/dhelmr/ulauncher-tldr/blob/master/doc/screenshot_ls.png?raw=true)
 
