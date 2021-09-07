@@ -19,6 +19,7 @@ from enum import Enum
 
 from tldr_wrapper.client import TldrClient
 from tldr_wrapper.tldr_page import TldrPageParser
+from tldr_wrapper.utils import remove_suffixes
 import logging
 
 log = logging.getLogger(__name__)
@@ -89,7 +90,7 @@ class KeywordQueryListener(EventListener):
                                 description=pad_string(parsed.description, width=90),
                                 icon="icons/information.svg", highlightable=False)
         ]+[
-            ExtensionResultItem(name=command.command, description=command.description.removesuffix(".").removesuffix(":"),
+            ExtensionResultItem(name=command.command, description=remove_suffixes(command.description, ".", ":"),
                                 icon="icons/command.svg", on_enter=CopyToClipboardAction(command.command))
             for command in parsed.commands
         ]+[

@@ -1,7 +1,7 @@
 import dataclasses
 import typing
 
-from tldr_wrapper.utils import extract_url
+from tldr_wrapper.utils import extract_url, remove_suffix, remove_suffixes
 
 
 @dataclasses.dataclass
@@ -43,9 +43,9 @@ class TldrPageParser:
             elif stripped.startswith(">"):
                 if stripped[1:].strip().lower().startswith("more information:"):
                     more_info_url = extract_url(
-                        stripped[1:].lower()
-                        .removesuffix(".")
-                        .removesuffix(">")
+                        remove_suffixes(
+                        stripped[1:].lower(), ".", ">"
+                        )
                         .strip()
                     )
                 else:
@@ -53,7 +53,7 @@ class TldrPageParser:
             elif stripped.startswith("-"):
                 current_entry_description = stripped[1:].strip()
             elif stripped.startswith("`"):
-                command = stripped[1:].removesuffix("`").strip()
+                command = remove_suffix(stripped[1:], "`").strip()
                 commands.append(
                     TldrCommandEntry(
                         description=current_entry_description, command=command
