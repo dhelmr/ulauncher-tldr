@@ -6,7 +6,7 @@ in a list-style and can copy the displayed commands to the clipboard.
 ## Requirements 
 
 * git
-* python (tested with 3.9, but older versions >= 3.6 should work as well)
+* python >= 3.8 (it won't work for older versions)
 
 ## Installation
 
