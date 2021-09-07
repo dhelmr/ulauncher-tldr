@@ -19,6 +19,9 @@ from enum import Enum
 
 from tldr_wrapper.client import TldrClient
 from tldr_wrapper.tldr_page import TldrPageParser
+import logging
+
+log = logging.getLogger(__name__)
 
 
 class ExtensionState(Enum):
@@ -79,7 +82,8 @@ class KeywordQueryListener(EventListener):
         try:
             parsed = ext.tldr_parser.parse_page(page)
         except Exception as e:
-            return # todo
+            log.error("Error while parsing the page", exc_info=e)
+            return RenderResultListAction([ExtensionResultItem(name="There was an error while parsing the tldr page.", description=str(e))])
         return RenderResultListAction([
             ExtensionResultItem(name=parsed.title,
                                 description=pad_string(parsed.description, width=90),
