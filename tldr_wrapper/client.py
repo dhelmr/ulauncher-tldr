@@ -55,9 +55,7 @@ class TldrClient:
         )
 
     def get_page(self, full_name: str) -> Optional[TldrPage]:
-        print(self.pages_dir(), full_name)
         page_path = os.path.join(self.pages_dir(), full_name + ".md")
-        print(page_path)
         if not os.path.exists(page_path):
             return None
         with open(page_path) as f:
