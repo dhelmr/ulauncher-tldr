@@ -1,9 +1,9 @@
 import dataclasses
 import os
 import os.path
-import subprocess
 from typing import List, Optional
 
+from tldr_wrapper.git import git_clone, git_pull
 from tldr_wrapper.tldr_page import TldrPage, TldrPageParser
 
 DEFAULT_CACHE_DIR = os.path.join(os.environ["HOME"], ".cache", "tldr-python")
@@ -32,7 +32,8 @@ class TldrClient:
             os.mkdir(self.cache_dir)
         if len(os.listdir(path=self.cache_dir)) == 0:
             git_clone(repo=self.repo_path, local_dir=self.cache_dir)
-        # TODO update with git pull/fetch
+        else:
+            git_pull(local_dir=self.cache_dir)
 
     def pages_dir(self):
         return os.path.join(self.cache_dir, "pages" + self.lang_suffix)
@@ -63,18 +64,3 @@ class TldrClient:
         return TldrPage(name=full_name, raw_content=content)
 
 
-def git_clone(repo: str, local_dir: str) -> str:
-    args = ["git", "clone", repo, local_dir]
-    p = subprocess.run(args, encoding="utf-8", capture_output=True)
-    if p.stderr == "":
-        errs = None
-    else:
-        errs = p.stderr
-    if p.returncode != 0:
-        format_cli_line = " ".join(args)
-        raise RuntimeError(
-            "git clone ended with state %s %s: %s"
-            % (p.returncode, format_cli_line, errs)
-        )
-    output = str(p.stdout)
-    return output
