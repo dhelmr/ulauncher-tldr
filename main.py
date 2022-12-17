@@ -12,7 +12,7 @@ from ulauncher.api.shared.action.DoNothingAction import DoNothingAction
 from ulauncher.api.shared.action.OpenUrlAction import OpenUrlAction
 from ulauncher.api.shared.action.SetUserQueryAction import SetUserQueryAction
 from ulauncher.api.shared.action.ExtensionCustomAction import ExtensionCustomAction
-from  ulauncher.api.shared.action.OpenUrlAction import OpenUrlAction
+from ulauncher.api.shared.action.OpenUrlAction import OpenUrlAction
 import os.path
 import html
 from enum import Enum
@@ -27,7 +27,7 @@ log = logging.getLogger(__name__)
 
 class ExtensionState(Enum):
     STARTING = "Extension is starting..."
-    DBANG_LOADING_FAILED = (
+    LOADING_FAILED = (
         "Could not load successfully. Please restart ulauncher. and check logs"
     )
     READY = "ok"
@@ -39,13 +39,37 @@ class ExtensionState(Enum):
 class TldrExt(Extension):
     def __init__(self):
         super(TldrExt, self).__init__()
-        self.tldr_client = TldrClient()
-        self.tldr_parser = TldrPageParser()
+        self.status = ExtensionState.STARTING
         self.subscribe(KeywordQueryEvent, KeywordQueryListener())
+        self.subscribe(PreferencesEvent, PreferencesEventListener())
+
+    def start(self, preferences):
+        try:
+            update = True
+            if preferences["update_startup"].lower() == "never":
+                update = False
+            cache_dir = os.path.expanduser(preferences["cache_dir"])
+            self.tldr_client = TldrClient(cache_dir=cache_dir, update_startup=update)
+            self.tldr_parser = TldrPageParser()
+            self.status = ExtensionState.READY
+        except Exception as e:
+            logging.error("Failed to load ulauncher-tldr: %s", e)
+            self.status = ExtensionState.LOADING_FAILED
+
+
+class PreferencesEventListener(EventListener):
+    """
+    Finishes initialization once ulauncher has loaded the preferences
+    """
+
+    def on_event(self, event: PreferencesEvent, extension: TldrExt):
+        extension.start(event.preferences)
 
 
 class KeywordQueryListener(EventListener):
     def on_event(self, event, ext: TldrExt):
+        if ext.status != ExtensionState.READY:
+            return RenderResultListAction([ExtensionResultItem(name="tldr-pages", description=str(ext.status))])
         argument = event.get_argument()
         if argument is None or argument == "":
             return self.list_commands(ext)
@@ -53,7 +77,7 @@ class KeywordQueryListener(EventListener):
         search_results = self.run_search(ext, argument)
         return search_results
 
-    def run_search(self, ext:TldrExt, argument: str):
+    def run_search(self, ext: TldrExt, argument: str):
         if "/" in argument:
             action = self.display_page(ext, argument.strip())
             if action is not None:
@@ -84,19 +108,25 @@ class KeywordQueryListener(EventListener):
             parsed = ext.tldr_parser.parse_page(page)
         except Exception as e:
             log.error("Error while parsing the page", exc_info=e)
-            return RenderResultListAction([ExtensionResultItem(name="There was an error while parsing the tldr page.", description=str(e))])
+            return RenderResultListAction(
+                [ExtensionResultItem(name="There was an error while parsing the tldr page.", description=str(e))])
         return RenderResultListAction([
-            ExtensionResultItem(name=parsed.title,
-                                description=pad_string(parsed.description, width=90),
-                                icon="icons/information.svg", highlightable=False)
-        ]+[
-            ExtensionResultItem(name=command.command, description=remove_suffixes(command.description, ".", ":"),
-                                icon="icons/command.svg", on_enter=CopyToClipboardAction(command.command))
-            for command in parsed.commands
-        ]+[
-            ExtensionResultItem(name="More information: %s" % parsed.more_info_url, description="[open in webbrowser]", icon="icons/external_url.svg",
-                                on_enter=OpenUrlAction(parsed.more_info_url))
-        ])
+                                          ExtensionResultItem(name=parsed.title,
+                                                              description=pad_string(parsed.description, width=90),
+                                                              icon="icons/information.svg", highlightable=False)
+                                      ] + [
+                                          ExtensionResultItem(name=command.command,
+                                                              description=remove_suffixes(command.description, ".",
+                                                                                          ":"),
+                                                              icon="icons/command.svg",
+                                                              on_enter=CopyToClipboardAction(command.command))
+                                          for command in parsed.commands
+                                      ] + [
+                                          ExtensionResultItem(name="More information: %s" % parsed.more_info_url,
+                                                              description="[open in webbrowser]",
+                                                              icon="icons/external_url.svg",
+                                                              on_enter=OpenUrlAction(parsed.more_info_url))
+                                      ])
 
     def list_commands(self, ext: TldrExt):
         return RenderResultListAction([])
@@ -109,6 +139,7 @@ class KeywordQueryListener(EventListener):
     def _make_page_query(self, ext: TldrExt, page_name: str):
         return "%s %s " % (ext.preferences["keyword"], page_name)
 
+
 def pad_string(text: str, width: int):
     padded_lines = [""]
     for line in text.splitlines():
@@ -116,8 +147,9 @@ def pad_string(text: str, width: int):
             if len(word) + len(padded_lines[-1]) < width:
                 padded_lines[-1] += word + " "
             else:
-                padded_lines.append(word+" ")
+                padded_lines.append(word + " ")
     return "\n".join(padded_lines)
+
 
 if __name__ == "__main__":
     TldrExt().run()

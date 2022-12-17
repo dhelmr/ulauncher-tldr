@@ -44,7 +44,7 @@ class TldrPageParser:
                 if stripped[1:].strip().lower().startswith("more information:"):
                     more_info_url = extract_url(
                         remove_suffixes(
-                        stripped[1:].lower(), ".", ">"
+                            stripped[1:].lower(), ".", ">"
                         )
                         .strip()
                     )

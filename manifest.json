@@ -17,6 +17,19 @@
             "name": "Maximum number of search results",
             "default_value": "10",
             "options": ["3","4","5","6","7","8","9","10","11","12"]
+        },
+        {
+            "id": "update_startup",
+            "type": "select",
+            "name": "Update the tldr-pages cache on Ulauncher's startup",
+            "default_value": "Always",
+            "options": ["Always", "Never"]
+        },
+        {
+            "id": "cache_dir",
+            "type": "input",
+            "name": "Path where the tldr-pages git repository is stored",
+            "default_value": "~/.cache/tldr-python"
         }
     ]
 }

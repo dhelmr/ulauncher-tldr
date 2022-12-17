@@ -1,15 +1,19 @@
 import subprocess
+import logging
+
+logger = logging.getLogger(__name__)
 
 def _exec_git(cmds) -> str:
+    logger.info("Run: %s", " ".join(cmds))
     p = subprocess.run(cmds, encoding="utf-8", capture_output=True)
     if p.stderr == "":
         errs = None
     else:
         errs = p.stderr
     if p.returncode != 0:
-        format_cli_line = " ".join(args)
+        format_cli_line = " ".join(cmds)
         raise RuntimeError(
-            "git clone ended with state %s %s: %s"
+            "git ended with state %s %s: %s"
             % (p.returncode, format_cli_line, errs)
         )
     output = str(p.stdout)
