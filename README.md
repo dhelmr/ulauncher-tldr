@@ -1,7 +1,9 @@
-# ulauncher-tldr
+ # ulauncher-tldr
 
 This is a ulauncher extension for [tldr.sh pages](https://tldr.sh/). It offers a search for tldr pages, shows the pages
 in a list-style and can copy the displayed commands to the clipboard.
+
+Note that this downloads the complete tldr pages via `git` to a local directory (`~/.cache/tldr-python`) and regularly updates this git repository.
 
 ## Requirements 
 
